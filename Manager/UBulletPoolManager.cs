@@ -173,8 +173,13 @@ namespace UDEngine.Components.Pool {
 			this.pools [id] = new Stack<UBulletObject> ();
 		}
 
-
-		public void RecycleBullet(UBulletObject bulletObject) {
+		/// <summary>
+		/// Recycles the bullet.
+		/// </summary>
+		/// <param name="bulletObject">Bullet object.</param>
+		/// <param name="shouldRecycleChildren">If set to <c>true</c> should recycle children.</param>
+		/// <param name="shouldSplitChildrenOnRecycle">If set to <c>true</c> should split children to individual pools on recycle.</param>
+		public void RecycleBullet(UBulletObject bulletObject, bool shouldRecycleChildren = false, bool shouldSplitChildrenOnRecycle = false) {
 			// Stopping all running tweens and sequences
 			bulletObject.trans.DOKill();
 			bulletObject.actor.KillAllTweenSequences();
@@ -187,8 +192,50 @@ namespace UDEngine.Components.Pool {
 			// To avoid racing, ALWAYS setRecyclable to true in calling 
 			bulletObject.collider.SetRecyclable (true);
 			bulletObject.gameObject.SetActive (false);
+
 			// Push to the pool stack
 			this.pools [bulletObject.GetPoolID ()].Push (bulletObject);
+
+			if (shouldRecycleChildren && bulletObject.children.Count >= 0) {
+				foreach (UBulletObject childObject in bulletObject.children) {
+					this._RecycleChildBulletHelper(childObject, shouldRecycleChildren, shouldSplitChildrenOnRecycle);
+				}
+			}
+		}
+
+		/// <summary>
+		/// Recycles the child bullet helper.
+		/// This is used to help recycling the children bullets
+		/// The different from the above method is that the PUSH TO STACK is dependent on shouldSplitChildrenOnRecycle
+		/// This takes into account of the idea that MAYBE you want to reclaim the children bullets on recycle
+		/// while the FIRST direct call to PUSH in above method is a MUST, while children ones are NOT
+		/// </summary>
+		/// <param name="bulletObject">Bullet object.</param>
+		/// <param name="shouldRecycleChildren">If set to <c>true</c> should recycle children.</param>
+		/// <param name="shouldSplitChildrenOnRecycle">If set to <c>true</c> should split children to individual pools on recycle.</param>
+		private void _RecycleChildBulletHelper(UBulletObject bulletObject, bool shouldRecycleChildren = false, bool shouldSplitChildrenOnRecycle = false) {
+			// Stopping all running tweens and sequences
+			bulletObject.trans.DOKill();
+			bulletObject.actor.KillAllTweenSequences();
+
+			// FIX: Terminate all callbacks (MUST DO!!!)
+			bulletObject.actor.ClearAllCallbacks ();
+
+			bulletObject.collider.SetEnable (false);
+			// Removing current bullet collision detection is done by signaling the collisionMonitor
+			// To avoid racing, ALWAYS setRecyclable to true in calling 
+			bulletObject.collider.SetRecyclable (true);
+			bulletObject.gameObject.SetActive (false);
+
+			if (shouldSplitChildrenOnRecycle) {
+				this.pools [bulletObject.GetPoolID ()].Push (bulletObject);
+			}
+
+			if (shouldRecycleChildren && bulletObject.children.Count >= 0) {
+				foreach (UBulletObject childObject in bulletObject.children) {
+					this._RecycleChildBulletHelper(childObject, shouldRecycleChildren, shouldSplitChildrenOnRecycle);
+				}
+			}
 		}
 
 		#endregion

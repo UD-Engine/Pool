@@ -141,7 +141,8 @@ namespace UDEngine.Components.Pool {
 					bulletObject.gameObject.SetActive (false);
 				}
 
-				bulletObject.trans.DOKill ();
+				// ALERT: REMOVED due to performance issue
+				// bulletObject.trans.DOKill ();
 				return bulletObject;
 			} else {
 				UBulletObject bulletObject = this.pools [id].Pop ();
@@ -157,7 +158,8 @@ namespace UDEngine.Components.Pool {
 					}
 				}
 
-				bulletObject.trans.DOKill ();
+				// ALERT: REMOVED due to performance issue
+				// bulletObject.trans.DOKill ();
 				return bulletObject;
 			}
 		}

@@ -78,6 +78,9 @@ namespace UDEngine.Components.Pool {
 		public List<UBulletObject> GetPrototypes() {
 			return this.prototypes;
 		}
+		public int GetPrototypesCount() {
+			return this.prototypes.Count;
+		}
 		public int GetPoolID(UBulletObject obj) {
 			return obj.GetPoolID ();
 		}

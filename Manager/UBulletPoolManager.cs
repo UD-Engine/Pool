@@ -72,6 +72,16 @@ namespace UDEngine.Components.Pool {
 		/// The collision monitor.
 		/// </summary>
 		public UCollisionMonitor collisionMonitor;
+
+		/// <summary>
+		/// Check if the system is using DOTween
+		/// </summary>
+		public bool isUsingDOTween = false;
+
+		/// <summary>
+		/// Check if the system is using LeanTween
+		/// </summary>
+		public bool isUsingLeanTween = false;
 		#endregion
 
 		#region METHOD
@@ -186,8 +196,15 @@ namespace UDEngine.Components.Pool {
 		/// <param name="shouldSplitChildrenOnRecycle">If set to <c>true</c> should split children to individual pools on recycle.</param>
 		public void RecycleBullet(UBulletObject bulletObject, bool shouldRecycleChildren = false, bool shouldSplitChildrenOnRecycle = false) {
 			// Stopping all running tweens and sequences
-			bulletObject.trans.DOKill();
-			bulletObject.actor.KillAllTweenSequences();
+			if (isUsingDOTween) {
+				bulletObject.trans.DOKill ();
+				bulletObject.actor.KillAllTweenSequences ();
+			}
+
+			// LEANTWEEN
+			if (isUsingLeanTween) {
+				bulletObject.KillAllLeanTweenAndLeanTweenSequence ();
+			}
 
 			// FIX: Terminate all callbacks (MUST DO!!!)
 			bulletObject.actor.ClearAllCallbacks ();
@@ -220,8 +237,15 @@ namespace UDEngine.Components.Pool {
 		/// <param name="shouldSplitChildrenOnRecycle">If set to <c>true</c> should split children to individual pools on recycle.</param>
 		private void _RecycleChildBulletHelper(UBulletObject bulletObject, bool shouldRecycleChildren = false, bool shouldSplitChildrenOnRecycle = false) {
 			// Stopping all running tweens and sequences
-			bulletObject.trans.DOKill();
-			bulletObject.actor.KillAllTweenSequences();
+			if (isUsingDOTween) {
+				bulletObject.trans.DOKill ();
+				bulletObject.actor.KillAllTweenSequences ();
+			}
+
+			// LEANTWEEN
+			if (isUsingLeanTween) {
+				bulletObject.KillAllLeanTweenAndLeanTweenSequence ();
+			}
 
 			// FIX: Terminate all callbacks (MUST DO!!!)
 			bulletObject.actor.ClearAllCallbacks ();

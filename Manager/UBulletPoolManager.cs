@@ -98,13 +98,19 @@ namespace UDEngine.Components.Pool {
 			return this.poolTransform;
 		}
 
+		public UBulletPoolManager SetTweenUsage(bool shouldUseDOTween, bool shouldUseLeanTween) {
+			isUsingDOTween = shouldUseDOTween;
+			isUsingLeanTween = shouldUseLeanTween;
+			return this;
+		}
+
 		/// <summary>
 		/// Preloads the bullet by ID.
 		/// NOTICE: ALL preloaded bullets would be INACTIVE by default
 		/// </summary>
 		/// <param name="id">Identifier.</param>
 		/// <param name="count">Count.</param>
-		public void PreloadBulletByID(int id, int count) {
+		public UBulletPoolManager PreloadBulletByID(int id, int count) {
 			for (int i = 0; i < count; i++) {
 				// This GetComponent<UBulletObject> is a must... though slow...
 				// But since it is happened at the beginning of stage, should not be a huge problem
@@ -119,6 +125,7 @@ namespace UDEngine.Components.Pool {
 				// Push the newly created bullet to corresponding stack 
 				this.pools[id].Push(bulletObject);
 			}
+			return this;
 		}
 
 		/// <summary>
@@ -174,7 +181,7 @@ namespace UDEngine.Components.Pool {
 			}
 		}
 
-		public void EmptyPoolByID(int id, bool shouldClearObjects = true) {
+		public UBulletPoolManager EmptyPoolByID(int id, bool shouldClearObjects = true) {
 			Stack<UBulletObject> thePool = this.pools [id];
 			if (shouldClearObjects) {
 				foreach (UBulletObject obj in thePool) {
@@ -186,6 +193,8 @@ namespace UDEngine.Components.Pool {
 			}
 			// Overwrite old pool
 			this.pools [id] = new Stack<UBulletObject> ();
+
+			return this;
 		}
 
 		/// <summary>
@@ -194,11 +203,10 @@ namespace UDEngine.Components.Pool {
 		/// <param name="bulletObject">Bullet object.</param>
 		/// <param name="shouldRecycleChildren">If set to <c>true</c> should recycle children.</param>
 		/// <param name="shouldSplitChildrenOnRecycle">If set to <c>true</c> should split children to individual pools on recycle.</param>
-		public void RecycleBullet(UBulletObject bulletObject, bool shouldRecycleChildren = false, bool shouldSplitChildrenOnRecycle = false) {
+		public UBulletPoolManager RecycleBullet(UBulletObject bulletObject, bool shouldRecycleChildren = false, bool shouldSplitChildrenOnRecycle = false) {
 			// Stopping all running tweens and sequences
 			if (isUsingDOTween) {
-				bulletObject.trans.DOKill ();
-				bulletObject.actor.KillAllTweenSequences ();
+				bulletObject.KillAllDOTweenAndDOTweenSequence ();
 			}
 
 			// LEANTWEEN
@@ -223,6 +231,8 @@ namespace UDEngine.Components.Pool {
 					this._RecycleChildBulletHelper(childObject, shouldRecycleChildren, shouldSplitChildrenOnRecycle);
 				}
 			}
+
+			return this;
 		}
 
 		/// <summary>
@@ -238,8 +248,7 @@ namespace UDEngine.Components.Pool {
 		private void _RecycleChildBulletHelper(UBulletObject bulletObject, bool shouldRecycleChildren = false, bool shouldSplitChildrenOnRecycle = false) {
 			// Stopping all running tweens and sequences
 			if (isUsingDOTween) {
-				bulletObject.trans.DOKill ();
-				bulletObject.actor.KillAllTweenSequences ();
+				bulletObject.KillAllDOTweenAndDOTweenSequence ();
 			}
 
 			// LEANTWEEN

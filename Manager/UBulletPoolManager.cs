@@ -3,16 +3,16 @@ using System.Collections.Generic;
 using UnityEngine;
 
 using UDEngine;
-using UDEngine.Components;
-using UDEngine.Components.Bullet;
-using UDEngine.Components.Collision;
+using UDEngine.Core;
+using UDEngine.Core.Bullet;
+using UDEngine.Core.Collision;
 using UDEngine.Internal;
 using UDEngine.Interface;
 using UDEngine.Enum;
 
 using DG.Tweening;
 
-namespace UDEngine.Components.Pool {
+namespace UDEngine.Core.Pool {
 	/// <summary>
 	/// This is one of the globals that controls the pooling
 	/// Unlike the previous version of the Engine, we will have only pools CONCEPTUALLY
